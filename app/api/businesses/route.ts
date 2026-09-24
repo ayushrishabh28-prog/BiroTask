@@ -1,10 +1,10 @@
 import { getChatGPTUser } from '@/app/chatgpt-auth';
 import { database } from '@/lib/database';
-import { answer } from '@/lib/bots';
+import { answer, normalizeCommand } from '@/lib/bots';
 import { templates, templateKnowledge } from '@/lib/templates';
 import { z } from 'zod';
 const source=z.object({id:z.string().max(100),title:z.string().trim().min(1).max(200),content:z.string().trim().min(1).max(80000),url:z.string().max(2000).optional()});
-const rule=z.object({id:z.string().max(100),trigger:z.string().trim().min(1).max(500),reply:z.string().trim().min(1).max(5000)});
+const rule=z.object({id:z.string().max(100),trigger:z.string().trim().min(1).max(500),reply:z.string().trim().min(1).max(5000),aliases:z.array(z.string().trim().min(1).max(500)).max(20).optional()});
 export async function GET(){
  const user=await getChatGPTUser();if(!user)return Response.json({error:'Please sign in to load your businesses.'},{status:401});
  try{const rows=await database().prepare('SELECT id,name,data,version FROM businesses WHERE owner=? ORDER BY rowid').bind(user.userId).all();return Response.json({businesses:rows.results.map((r:any)=>({...r,data:JSON.parse(r.data)}))});}catch(e){console.error(e);return Response.json({error:'Could not load your businesses. Please try again.'},{status:503});}
@@ -22,7 +22,7 @@ export async function POST(req:Request){
  const data=JSON.parse(row.data);
  if(p.action==='chat')return Response.json(answer(data.trained,z.string().trim().min(1).max(2000).parse(p.question)));
  if(p.version!==row.version)return Response.json({error:'This business changed in another window. Reload before saving.'},{status:409});
- if(p.action==='save'){const parsed=z.object({sources:z.array(source).max(100),rules:z.array(rule).max(200)}).parse(p.data);data.sources=parsed.sources;data.rules=parsed.rules;}
+ if(p.action==='save'){const parsed=z.object({sources:z.array(source).max(100),rules:z.array(rule).max(200)}).parse(p.data);const used=new Map<string,string>();for(const r of parsed.rules){for(const phrase of [r.trigger,...(r.aliases||[])]){const key=normalizeCommand(phrase);if(!key)return Response.json({error:'A command must contain letters or numbers.'},{status:400});if(used.has(key)&&used.get(key)!==r.id)return Response.json({error:'Two rules use the same command or alternative phrase. Give each phrase one reply.'},{status:400});used.set(key,r.id);}}data.sources=parsed.sources;data.rules=parsed.rules;}
  else if(p.action==='train'){if(!data.sources.length&&!data.rules.length)return Response.json({error:'Add at least one source or reply rule first.'},{status:400});data.trained={sources:data.sources,rules:data.rules};data.trainedAt=new Date().toISOString();}
  else return Response.json({error:'Unknown action'},{status:400});
  const updated=await db.prepare('UPDATE businesses SET data=?, version=version+1 WHERE id=? AND owner=? AND version=?').bind(JSON.stringify(data),p.id,user.userId,p.version).run();
