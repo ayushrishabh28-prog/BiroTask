@@ -3,6 +3,8 @@ import "./globals.css";
 import "./studio.css";
 import "./demo-chat.css";
 import "./demo-gallery.css";
+import "./tutorial-guide.css";
+import { TutorialGuide } from "./tutorial-guide";
 
 export const metadata: Metadata = {
   title: "BotFoundry — Chatbot Studio",
@@ -25,6 +27,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <a className="global-demo-access" href="/demos"><span>✦</span> Demo gallery</a>
+        <TutorialGuide />
         {children}
       </body>
     </html>

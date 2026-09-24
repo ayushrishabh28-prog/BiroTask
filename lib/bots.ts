@@ -1,7 +1,7 @@
 export type Source = {id:string; title:string; content:string; url?:string};
 export type Rule = {id:string; trigger:string; reply:string; aliases?:string[]};
 export type Knowledge = {sources:Source[]; rules:Rule[]};
-export type Business = {id:string; name:string; version:number; data:Knowledge & {trained?:Knowledge; trainedAt?:string}};
+export type Business = {id:string; name:string; version:number; data:Knowledge & {trained?:Knowledge; trainedAt?:string; templateSlug?:string}};
 export const normalizeCommand = (s:string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim();
 const filler = new Set('what are your the you do does is a an please me tell can could would kindly of'.split(' '));
 function signature(text:string,semantic=true):string[] {

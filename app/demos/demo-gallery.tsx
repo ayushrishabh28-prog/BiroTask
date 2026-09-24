@@ -1,14 +1,36 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Bot, Check, ExternalLink, Layers } from 'lucide-react';
 import { templates } from '@/lib/templates';
+import type { Business } from '@/lib/bots';
 
 export function DemoGallery() {
   const [loadingSlug, setLoadingSlug] = useState('');
   const [error, setError] = useState('');
+  const [demoBusinesses, setDemoBusinesses] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetch('/api/businesses').then(async (response) => {
+      if (!response.ok) return;
+      const result = await response.json() as { businesses?: Business[] };
+      const matches: Record<string, string> = {};
+      for (const business of result.businesses || []) {
+        const slug = business.data.templateSlug || templates.find((template) =>
+          business.data.sources.some((source) => source.id === `${template.slug}-website`)
+        )?.slug;
+        if (slug) matches[slug] = business.id;
+      }
+      setDemoBusinesses(matches);
+    }).catch(() => undefined);
+  }, []);
 
   async function addDemo(slug: string) {
+    const existingId = demoBusinesses[slug];
+    if (existingId) {
+      window.location.assign(`/?business=${encodeURIComponent(existingId)}`);
+      return;
+    }
     setLoadingSlug(slug);
     setError('');
     try {
@@ -74,9 +96,9 @@ export function DemoGallery() {
                 <li><Check size={14} /> Knowledge and {template.rules.length} reply rules</li>
               </ul>
               <div className="gallery-actions">
-                <a href={`/templates/${template.slug}`}>Open website <ExternalLink size={14} /></a>
+                <a href={`/templates/${template.slug}${demoBusinesses[template.slug] ? `?business=${encodeURIComponent(demoBusinesses[template.slug])}` : ''}`}>Open website <ExternalLink size={14} /></a>
                 <button disabled={Boolean(loadingSlug)} onClick={() => addDemo(template.slug)}>
-                  {loadingSlug === template.slug ? 'Adding…' : 'Add bot to workspace'} <ArrowRight size={14} />
+                  {loadingSlug === template.slug ? 'Adding…' : demoBusinesses[template.slug] ? 'Train in workspace' : 'Add bot to workspace'} <ArrowRight size={14} />
                 </button>
               </div>
             </div>

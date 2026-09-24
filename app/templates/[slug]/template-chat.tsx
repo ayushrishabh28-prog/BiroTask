@@ -13,9 +13,11 @@ type ChatMessage = {
 export function TemplateChat({
   businessName,
   knowledge,
+  businessId,
 }: {
   businessName: string;
   knowledge: Knowledge;
+  businessId?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState('');
@@ -32,16 +34,36 @@ export function TemplateChat({
     knowledge.rules[1]?.trigger,
   ].filter((value, index, list): value is string => Boolean(value) && list.indexOf(value) === index).slice(0, 3);
 
-  function send(rawQuestion: string) {
+  const [sending, setSending] = useState(false);
+
+  async function send(rawQuestion: string) {
     const value = rawQuestion.trim();
-    if (!value) return;
-    const reply = answer(knowledge, value);
+    if (!value || sending) return;
+    setSending(true);
+    setMessages((current) => [...current, { role: 'user', text: value }]);
+    setQuestion('');
+    let reply;
+    if (businessId) {
+      try {
+        const response = await fetch('/api/businesses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'chat', id: businessId, question: value }),
+        });
+        const result = await response.json() as { text?: string; source?: string; error?: string };
+        if (!response.ok || !result.text) throw new Error(result.error || 'Could not reach the trained bot.');
+        reply = { text: result.text, source: result.source };
+      } catch (cause) {
+        reply = { text: cause instanceof Error ? cause.message : 'Could not reach the trained bot.', source: 'BotFoundry workspace' };
+      }
+    } else {
+      reply = answer(knowledge, value);
+    }
     setMessages((current) => [
       ...current,
-      { role: 'user', text: value },
       { role: 'bot', text: reply.text, source: reply.source },
     ]);
-    setQuestion('');
+    setSending(false);
   }
 
   function submit(event: FormEvent) {
@@ -84,9 +106,9 @@ export function TemplateChat({
               placeholder="Type a question…"
               value={question}
             />
-            <button aria-label="Send message" disabled={!question.trim()}><Send size={17} /></button>
+            <button aria-label="Send message" disabled={sending || !question.trim()}><Send size={17} /></button>
           </form>
-          <footer>Demo chatbot powered by BotFoundry</footer>
+          <footer>{businessId ? 'Using your latest BotFoundry training' : 'Demo chatbot powered by BotFoundry'}</footer>
         </section>
       )}
       <button
