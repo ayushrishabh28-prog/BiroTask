@@ -1,6 +1,7 @@
 import { getChatGPTUser } from '@/app/chatgpt-auth';
 import { database } from '@/lib/database';
 import { answer } from '@/lib/bots';
+import { templates, templateKnowledge } from '@/lib/templates';
 import { z } from 'zod';
 const source=z.object({id:z.string().max(100),title:z.string().trim().min(1).max(200),content:z.string().trim().min(1).max(80000),url:z.string().max(2000).optional()});
 const rule=z.object({id:z.string().max(100),trigger:z.string().trim().min(1).max(500),reply:z.string().trim().min(1).max(5000)});
@@ -14,6 +15,7 @@ export async function POST(req:Request){
  try{
  const text=await req.text();if(text.length>2000000)return Response.json({error:'This business has too much content.'},{status:413});
  const p=JSON.parse(text);const db=database();
+ if(p.action==='template'){const t=templates.find(t=>t.slug===p.slug);if(!t)return Response.json({error:'Template not found.'},{status:404});const k=templateKnowledge(t.slug)!;const id=crypto.randomUUID();await db.prepare('INSERT INTO businesses (id,owner,name,data,version) VALUES (?,?,?,?,0)').bind(id,user.userId,t.name+' (demo)',JSON.stringify({...k,trained:k,trainedAt:new Date().toISOString()})).run();return Response.json({id});}
  if(p.action==='create') {const name=z.string().trim().min(1).max(100).parse(p.name);const id=crypto.randomUUID();await db.prepare('INSERT INTO businesses (id,owner,name,data,version) VALUES (?,?,?,?,0)').bind(id,user.userId,name,JSON.stringify({sources:[],rules:[]})).run();return Response.json({id});}
  const row:any=await db.prepare('SELECT * FROM businesses WHERE id=? AND owner=?').bind(String(p.id),user.userId).first();
  if(!row)return Response.json({error:'Business not found.'},{status:404});
