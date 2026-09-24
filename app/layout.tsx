@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./studio.css";
+import "./demo-chat.css";
 
 export const metadata: Metadata = {
   title: "BotFoundry — Chatbot Studio",
