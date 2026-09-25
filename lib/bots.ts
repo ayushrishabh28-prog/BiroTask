@@ -12,10 +12,13 @@ function signature(text:string,semantic=true):string[] {
  if(semantic&&/^(open hours|business hours|working hours|hours open|when open|when close|time open|time close|open time|close time)$/.test(phrase))return ['@business-hours'];
  return words.sort();
 }
-// A single insertion, removal, substitution, or adjacent transposition.
-// Short words are deliberately excluded: "hi" must never fuzzy-match "no".
+const collapseStretchedLetters = (word:string) => word.replace(/(.)\1+/gu,'$1');
+// A single insertion, removal, substitution, adjacent transposition, or a
+// deliberately stretched letter ("yo" / "yoo"). Arbitrary short-word edits
+// remain excluded so commands such as "hi" and "no" never become equivalent.
 function oneTypo(a:string,b:string){
  if(a===b)return true;
+ if(!a.startsWith('@')&&!b.startsWith('@')&&collapseStretchedLetters(a)===collapseStretchedLetters(b)&&collapseStretchedLetters(a).length>1)return true;
  if(Math.min(a.length,b.length)<4||a.startsWith('@')||b.startsWith('@')||Math.abs(a.length-b.length)>1)return false;
  if(a.length===b.length){const diffs=[];for(let i=0;i<a.length;i++)if(a[i]!==b[i])diffs.push(i);return diffs.length===1||(diffs.length===2&&diffs[1]===diffs[0]+1&&a[diffs[0]]===b[diffs[1]]&&a[diffs[1]]===b[diffs[0]]);}
  const shorter=a.length<b.length?a:b,longer=a.length<b.length?b:a;let i=0;while(i<shorter.length&&shorter[i]===longer[i])i++;return shorter.slice(i)===longer.slice(i+1);
