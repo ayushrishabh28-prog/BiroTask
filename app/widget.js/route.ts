@@ -1,0 +1,5 @@
+export async function GET(req:Request){
+ const origin=new URL(req.url).origin;
+ const script=`(()=>{const current=document.currentScript;const business=current&&current.dataset.business;if(!business)return;const frame=document.createElement('iframe');frame.src=${JSON.stringify(origin)}+'/embed/'+encodeURIComponent(business);frame.title='Business chatbot';frame.setAttribute('aria-label','Business chatbot');frame.style.cssText='position:fixed;right:12px;bottom:12px;width:230px;height:76px;border:0;background:transparent;z-index:2147483000;color-scheme:normal;';document.body.appendChild(frame);window.addEventListener('message',event=>{if(event.origin!==${JSON.stringify(origin)}||!event.data||event.data.type!=='botfoundry:resize'||event.data.businessId!==business)return;if(event.data.open){frame.style.width='min(400px, calc(100vw - 24px))';frame.style.height='min(680px, calc(100vh - 24px))';}else{frame.style.width='230px';frame.style.height='76px';}});})();`;
+ return new Response(script,{headers:{'Content-Type':'text/javascript; charset=utf-8','Cache-Control':'public, max-age=3600','Access-Control-Allow-Origin':'*'}});
+}

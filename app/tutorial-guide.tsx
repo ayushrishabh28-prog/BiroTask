@@ -9,8 +9,8 @@ const steps = [
   { icon: Globe, eyebrow: 'STEP 1 · CHOOSE A START', title: 'Start fresh or use a demo.', copy: 'Create a business from your workspace, import a public website page, or choose one of the three complete demo businesses in the Demo gallery.' },
   { icon: BookOpen, eyebrow: 'STEP 2 · ADD KNOWLEDGE', title: 'Teach it the facts.', copy: 'Import a website URL or add text manually. Opening hours, services, locations, policies, and FAQs all belong in Knowledge.' },
   { icon: MessageSquare, eyebrow: 'STEP 3 · SHAPE REPLIES', title: 'Control the answers that matter.', copy: 'Reply rules connect a customer question to an exact answer. Add alternative phrases so greetings, reordered words, and common rephrasings are recognized.' },
-  { icon: Zap, eyebrow: 'STEP 4 · TRAIN', title: 'Publish your saved changes to the bot.', copy: 'Saving edits keeps your work. Train bot creates the snapshot used by both the studio tester and the linked demo website chatbot.' },
-  { icon: Bot, eyebrow: 'STEP 5 · TEST THE EXPERIENCE', title: 'Try it where customers will.', copy: 'Use the studio chat for quick checks, then choose Test on demo website. The website chatbot will use that same trained business and Back to BotFoundry will return you to it.' },
+  { icon: Zap, eyebrow: 'STEP 4 · TRAIN', title: 'Publish your saved changes to the bot.', copy: 'Saving edits keeps your work. Train bot creates the snapshot used by the studio tester, website preview, and installed chatbot.' },
+  { icon: Bot, eyebrow: 'STEP 5 · PREVIEW & INSTALL', title: 'Try it where customers will.', copy: 'Use Install & preview to overlay the chatbot on an imported website, then copy the installation code into the real site.' },
 ];
 
 export function TutorialGuide() {
@@ -24,7 +24,7 @@ export function TutorialGuide() {
     return () => window.clearTimeout(timer);
   }, [pathname]);
 
-  if (pathname.startsWith('/templates/')) return null;
+  if (pathname.startsWith('/templates/') || pathname.startsWith('/embed/') || pathname.startsWith('/preview/')) return null;
   const current = steps[step];
   const Icon = current.icon;
   const close = () => { localStorage.setItem('botfoundry-tour-seen', '1'); setOpen(false); };
