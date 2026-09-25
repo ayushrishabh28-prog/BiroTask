@@ -45,9 +45,10 @@ function ruleReply(rules:Rule[],question:string){
 export function answer(knowledge:Knowledge|undefined, question:string) {
  if(!knowledge)return {text:'This bot has not been trained yet. Add knowledge or a reply rule, then click Train bot.',source:'Not trained'};
  const match=ruleReply(knowledge.rules,question);if(match)return match;
- const stop=new Set('what when where which does have with that this your you are the can how please tell about'.split(' '));
+ const stop=new Set('what when where which does have with that this your you are the can how please tell about could would should want need know'.split(' '));
  const terms=[...new Set(normalizeCommand(question).split(' ').filter(t=>t.length>2&&!stop.has(t)))];
- const candidates=knowledge.sources.flatMap(s=>s.content.split(/\n+|(?<=[.!?])\s+/).filter(p=>p.trim()).map(p=>({text:p.trim(),source:s.title,score:terms.reduce((n,t)=>n+(normalizeCommand(p).split(' ').includes(t)?1:0),0)}))).sort((a,b)=>b.score-a.score);
+ const candidates=knowledge.sources.flatMap(s=>s.content.split(/\n+|(?<=[.!?])\s+/).filter(p=>p.trim()).map(p=>{const words=normalizeCommand(p).split(' ');const score=terms.reduce((total,term)=>total+(words.includes(term)?3:words.some(word=>oneTypo(term,word))?1:0),0);return{text:p.trim(),source:s.title,score};})).sort((a,b)=>b.score-a.score);
  if(!terms.length||!candidates[0]?.score)return {text:'I don’t have that information yet. Please contact the business for help.',source:'Fallback · no matching knowledge'};
- return {text:candidates[0].text.slice(0,1800),source:'Knowledge excerpt · '+candidates[0].source};
+ const selected=candidates.filter(item=>item.score>0).slice(0,2);const combined=selected.map(item=>item.text).filter((text,index,list)=>list.indexOf(text)===index).join(' ');
+ return {text:combined.slice(0,1800),source:'Knowledge answer · '+[...new Set(selected.map(item=>item.source))].join(', ')};
 }
