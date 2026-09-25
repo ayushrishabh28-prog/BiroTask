@@ -1,5 +1,5 @@
 /* BotFoundry studio: ink navigation, blue actions, spacious working surfaces. */
-.studio-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}.studio-actions .secondary{padding:12px 15px}
+.studio-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}.studio-actions .secondary{padding:12px 15px}.danger-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 13px;border:1px solid #ead7dc;border-radius:8px;background:#fff;color:#aa5261;font-size:13px;font-weight:550}.danger-secondary:hover{border-color:#d99daa;background:#fff5f6;color:#913b4b}.danger-secondary:disabled{opacity:.5}
 :root{--primary:#315bea;--primary-foreground:#fff;--ring:#6384ff;--accent:#edf2ff;--accent-foreground:#2448bc;--sidebar:#121b2e;--sidebar-foreground:#c4cddd;--sidebar-primary:#7694ff;--sidebar-primary-foreground:#fff;--sidebar-accent:#263452;--sidebar-accent-foreground:#fff;--sidebar-border:#283247;--sidebar-ring:#7694ff;--background:#fff;--foreground:#202b42;--muted-foreground:#657189;--border:#e3e8f1;--input:#dce3ef}
 body{color:#202b42;background:#f5f7fb;font-family:'Segoe UI',Arial,sans-serif;letter-spacing:-.12px}
 .main{background:radial-gradient(ellipse at 100% 0,#e7eeff70,transparent 500px),#f5f7fb;min-height:100vh}

@@ -20,6 +20,7 @@ export async function POST(req:Request){
  const row:any=await db.prepare('SELECT * FROM businesses WHERE id=? AND owner=?').bind(String(p.id),user.userId).first();
  if(!row)return Response.json({error:'Business not found.'},{status:404});
  const data=JSON.parse(row.data);
+ if(p.action==='delete'){await db.prepare('DELETE FROM businesses WHERE id=? AND owner=?').bind(String(p.id),user.userId).run();return Response.json({ok:true});}
  if(p.action==='chat')return Response.json(answer(data.trained,z.string().trim().min(1).max(2000).parse(p.question)));
  if(p.version!==row.version)return Response.json({error:'This business changed in another window. Reload before saving.'},{status:409});
  if(p.action==='save'){const parsed=z.object({sources:z.array(source).max(100),rules:z.array(rule).max(200)}).parse(p.data);const used=new Map<string,string>();for(const r of parsed.rules){for(const phrase of [r.trigger,...(r.aliases||[])]){const key=normalizeCommand(phrase);if(!key)return Response.json({error:'A command must contain letters or numbers.'},{status:400});if(used.has(key)&&used.get(key)!==r.id)return Response.json({error:'Two rules use the same command or alternative phrase. Give each phrase one reply.'},{status:400});used.set(key,r.id);}}data.sources=parsed.sources;data.rules=parsed.rules;}
