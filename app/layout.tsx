@@ -7,6 +7,7 @@ import "./tutorial-guide.css";
 import "./widget.css";
 import "./preview.css";
 import "./website-builder.css";
+import "./website-builder-polish.css";
 import { TutorialGuide } from "./tutorial-guide";
 import { InstallWidgetHub } from "./install-widget";
 
