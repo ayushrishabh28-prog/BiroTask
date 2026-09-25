@@ -6,6 +6,7 @@ import "./demo-gallery.css";
 import "./tutorial-guide.css";
 import "./widget.css";
 import "./preview.css";
+import "./website-builder.css";
 import { TutorialGuide } from "./tutorial-guide";
 import { InstallWidgetHub } from "./install-widget";
 
@@ -30,6 +31,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         <a className="global-demo-access" href="/demos"><span>✦</span> Demo gallery</a>
+        <a className="global-site-builder-access" href="/website-builder"><span>✦</span> Website builder</a>
         <TutorialGuide />
         <InstallWidgetHub />
         {children}

@@ -1,6 +1,16 @@
-# vinext-starter
+# BotFoundry
 
-A clean full-stack starter running on [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and Drizzle support.
+BotFoundry is a multi-business chatbot studio with website importing, editable knowledge, controlled reply rules, training snapshots, customer-facing widgets, live-site previews, and fictional demo businesses. Its early-access Website Studio also turns a short business brief into an editable, responsive website draft that can be saved locally and downloaded as HTML.
+
+The app runs on [vinext](https://github.com/cloudflare/vinext), Cloudflare Workers, D1, React, and TypeScript.
+
+## Product areas
+
+- `/` — chatbot workspace and training studio
+- `/demos` — complete example businesses and customer chatbot demos
+- `/website-builder` — guided website generation and live responsive preview
+- `/preview/:id` — imported-site chatbot preview
+- `/embed/:id` and `/widget.js` — installable customer chatbot
 
 ## Prerequisites
 
