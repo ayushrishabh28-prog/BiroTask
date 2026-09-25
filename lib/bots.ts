@@ -7,7 +7,7 @@ const filler = new Set('what are your the you do does is a an please me tell can
 function signature(text:string,semantic=true):string[] {
  const normal=normalizeCommand(text);
  if(semantic&&/^(hello|hi|hey|hiya|howdy|greetings|good morning|good afternoon|good evening)( there| everyone| folks| team)?$/.test(normal))return ['@greeting'];
- const words=normal.split(' ').filter(w=>w&&!filler.has(w)).map(w=>({opening:'open',opens:'open',times:'time',closing:'close',closes:'close'}[w]||w));
+ const words=normal.split(' ').filter(w=>w&&!filler.has(w)).map(w=>semantic?({opening:'open',opens:'open',times:'time',closing:'close',closes:'close'}[w]||w):w);
  const phrase=words.join(' ');
  if(semantic&&/^(open hours|business hours|working hours|hours open|when open|when close|time open|time close|open time|close time)$/.test(phrase))return ['@business-hours'];
  return words.sort();

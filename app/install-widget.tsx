@@ -7,8 +7,8 @@ import {Check,Code2,Copy,ExternalLink,MonitorUp,X} from 'lucide-react';
 import type {Business} from '@/lib/bots';
 
 export function InstallWidget({business}:{business:Business}){
- const [open,setOpen]=useState(false),[copied,setCopied]=useState(false),[origin,setOrigin]=useState('');
- useEffect(()=>setOrigin(window.location.origin),[]);
+ const [open,setOpen]=useState(false),[copied,setCopied]=useState(false);
+ const origin=typeof window==='undefined'?'':window.location.origin;
  useEffect(()=>{if(!open)return;const previous=document.body.style.overflow;document.body.style.overflow='hidden';const close=(event:KeyboardEvent)=>{if(event.key==='Escape')setOpen(false);};window.addEventListener('keydown',close);return()=>{document.body.style.overflow=previous;window.removeEventListener('keydown',close);};},[open]);
  const trained=Boolean(business.data.trained);const website=business.data.sources.find(source=>source.url)?.url;
  const code=`<script src="${origin}/widget.js" data-business="${business.id}" defer></script>`;

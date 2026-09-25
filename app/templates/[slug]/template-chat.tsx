@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Bot, MessageCircle, Send, X } from 'lucide-react';
 import { answer, type Knowledge } from '@/lib/bots';
 
@@ -35,6 +35,11 @@ export function TemplateChat({
   ].filter((value, index, list): value is string => Boolean(value) && list.indexOf(value) === index).slice(0, 3);
 
   const [sending, setSending] = useState(false);
+  const historyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    historyRef.current?.scrollTo({ top: historyRef.current.scrollHeight, behavior: 'smooth' });
+  }, [messages, sending]);
 
   async function send(rawQuestion: string) {
     const value = rawQuestion.trim();
@@ -45,10 +50,10 @@ export function TemplateChat({
     let reply;
     if (businessId) {
       try {
-        const response = await fetch('/api/businesses', {
+        const response = await fetch('/api/public-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'chat', id: businessId, question: value }),
+          body: JSON.stringify({ businessId, question: value }),
         });
         const result = await response.json() as { text?: string; source?: string; error?: string };
         if (!response.ok || !result.text) throw new Error(result.error || 'Could not reach the trained bot.');
@@ -83,7 +88,7 @@ export function TemplateChat({
             </div>
             <button onClick={() => setOpen(false)} aria-label="Close chatbot"><X size={19} /></button>
           </header>
-          <div className="demo-chat-history" aria-live="polite">
+          <div className="demo-chat-history" aria-live="polite" aria-busy={sending} ref={historyRef}>
             {messages.map((message, index) => (
               <div className={`demo-chat-message ${message.role}`} key={`${message.role}-${index}`}>
                 <p>{message.text}</p>
